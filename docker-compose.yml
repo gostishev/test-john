@@ -1,0 +1,29 @@
+version: '3.7'
+
+services:
+  php_fpm:
+    build:
+      dockerfile: ./.docker/php/Dockerfile
+      context: ./
+    restart: unless-stopped
+    volumes:
+      - ./app:/app:rw,cached
+      - ./.docker/php/conf.d/service.dev.ini:/usr/local/etc/php/conf.d/service.ini
+      - php_socket:/var/run/php
+
+  nginx:
+    build:
+      context: ./
+      dockerfile: ./.docker/nginx/Dockerfile
+      target: dev
+    ports:
+      - "8000:80"
+    depends_on:
+      - php_fpm
+    volumes:
+      - php_socket:/var/run/php
+      - ./app:/app
+
+volumes:
+  php_socket:
+    driver: local

@@ -43,6 +43,8 @@ RUN set -eux; \
 	\
 	apk del .build-deps
 
+COPY --from=composer:2.0 /usr/bin/composer /usr/bin/composer
+
 RUN ln -fsn /usr/local/bin/php /usr/bin/php
 RUN ln -fsn /usr/local/bin/php-config /usr/bin/php-config
 
@@ -51,11 +53,17 @@ COPY .docker/php/conf.d/service.prod.ini $PHP_INI_DIR/conf.d/service.ini
 
 COPY .docker/php/php-fpm.d/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV PATH="${PATH}:/root/.composer/vendor/bin"
+
 WORKDIR /app
 
-COPY app ./
+COPY ./classes/ /app/classes/
+COPY ./public/ /app/public/
+COPY ./composer.json /app/composer.json
+COPY ./composer.lock /app/composer.lock
 
-HEALTHCHECK --interval=10s --timeout=3s --retries=3 CMD ["docker-healthcheck"]
+RUN composer install --no-interaction
 
 COPY .docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 RUN chmod +x /usr/local/bin/docker-entrypoint

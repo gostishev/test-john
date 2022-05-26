@@ -7,7 +7,8 @@ RUN apk add --no-cache \
 		file \
 		gettext \
 		git \
-		gnu-libiconv \
+        postgresql-dev \
+        gnu-libiconv \
 	;
 
 RUN set -eux; \
@@ -15,17 +16,18 @@ RUN set -eux; \
 		$PHPIZE_DEPS \
 		icu-dev \
 		libzip-dev \
-		zlib-dev \
+        zlib-dev \
 	; \
 	\
 	docker-php-ext-configure zip; \
 	docker-php-ext-install -j$(nproc) \
 		intl \
 		pdo_mysql \
-		zip \
+        pdo_pgsql \
+        zip \
 	; \
 	pecl install \
-		apcu-5.1.21 \
+		apcu \
 	; \
 	pecl clear-cache; \
 	docker-php-ext-enable \

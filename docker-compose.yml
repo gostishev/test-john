@@ -8,6 +8,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./vendor:/app/vendor
+      - ./classes:/app/classes
+      - ./public:/app/public
       - ./composer.json:/app/composer.json
       - ./composer.lock:/app/composer.lock
       - ./.docker/php/conf.d/service.dev.ini:/usr/local/etc/php/conf.d/service.ini
@@ -31,9 +33,12 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - postgres:/data/postgres
     ports:
       - "5432:5432"
 
 volumes:
   php_socket:
     driver: local
+  postgres:
